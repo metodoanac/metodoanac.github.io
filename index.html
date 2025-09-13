@@ -3,27 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    
     <title>Método ANAC</title>
     <link rel="icon" type="image/x-icon" href="https://github.com/metodoanac/metodoanac.github.io/blob/images/favicon.jpg?raw=true">
     
     <style>
-        body, html {
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden; /* Evita barras de rolagem desnecessárias */
+            box-sizing: border-box;
         }
-        iframe {
-            border: none;
+        
+        body, html {
             width: 100%;
             height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .error-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .error-message h2 {
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+        
+        .error-message button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
-    
 </head>
 <body>
+    <div class="container">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Carregando conteúdo...</p>
+        </div>
+        
+        <iframe id="contentFrame" src="https://script.google.com/macros/s/AKfycbyDVCPFL0EhJAQZP8FJRkZxkXx4hBPHx5sL1QOZjT8qrQC6jR04Yc6uD1NPiy4ml5to/exec" onload="hideLoader()" allow="autoplay; fullscreen"></iframe>
+        
+        <div class="error-message" id="errorMessage">
+            <h2>Problema ao carregar</h2>
+            <p>Não foi possível carregar o conteúdo. Isso pode acontecer ao abrir links pelo Instagram no iPhone.</p>
+            <button onclick="openInBrowser()">Abrir no navegador</button>
+        </div>
+    </div>
 
-    <iframe width="100%" height="100%" src="https://script.google.com/macros/s/AKfycbyDVCPFL0EhJAQZP8FJRkZxkXx4hBPHx5sL1QOZjT8qrQC6jR04Yc6uD1NPiy4ml5to/exec" style="border:none;" scrolling="yes"></iframe>
-
+    <script>
+        // Função para ocultar o loader quando o iframe carregar
+        function hideLoader() {
+            document.querySelector('.loading').style.display = 'none';
+        }
+        
+        // Função para abrir no navegador padrão
+        function openInBrowser() {
+            // URL atual - substitua pela URL do seu iframe se necessário
+            window.open(window.location.href, '_system');
+        }
+        
+        // Verificar se é iOS e se há problemas com o iframe
+        function isIOS() {
+            return [
+                'iPad Simulator',
+                'iPhone Simulator',
+                'iPod Simulator',
+                'iPad',
+                'iPhone',
+                'iPod'
+            ].includes(navigator.platform) || 
+            (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+        }
+        
+        // Verificar se está no aplicativo do Instagram
+        function isInstagram() {
+            return navigator.userAgent.includes('Instagram');
+        }
+        
+        // Quando a página carregar
+        window.addEventListener('load', function() {
+            // Verificar após um tempo se o iframe carregou corretamente
+            setTimeout(function() {
+                const frame = document.getElementById('contentFrame');
+                let frameLoaded = false;
+                
+                try {
+                    // Tentar acessar o conteúdo do iframe
+                    frameLoaded = frame.contentWindow && frame.contentWindow.document && 
+                                 frame.contentWindow.document.body && 
+                                 frame.contentWindow.document.body.innerHTML !== '';
+                } catch (e) {
+                    // Bloqueio de cross-origin, comum com iframes
+                    frameLoaded = true; // Assumimos que carregou, já que não podemos verificar
+                }
+                
+                // Se for iOS e Instagram e o iframe parece não ter carregado
+                if (isIOS() && isInstagram() && !frameLoaded) {
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            }, 3000);
+        });
+        
+        // Fallback: se depois de 5 segundos a página ainda não carregou, mostrar opção
+        setTimeout(function() {
+            if (document.querySelector('.loading').style.display !== 'none') {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.querySelector('.loading').style.display = 'none';
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
