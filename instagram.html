@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método ANAC - Simulado Gratuito</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Inicializa o EmailJS com sua Public Key
+        (function() {
+            emailjs.init("KSUuWhtIb9zdwOwkU");
+        })();
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Lato, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header-img {
+            width: 80%;
+            max-width: 300px;
+            margin: 0 auto 25px;
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+        }
+        
+        h2 {
+            color: #0056b3;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+        }
+        
+        input[type="email"] {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-family: Lato, sans-serif;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .footer {
+            margin-top: 25px;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        
+        .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://github.com/metodoanac/metodoanac.github.io/blob/images/Logo%20login.jpg?raw=true" alt="Método ANAC" class="header-img">
+        
+        <div class="card">
+            <div class="icon">📱</div>
+            <h2>Acesse nosso simulado</h2>
+            <p>Clique no botão abaixo para abrir diretamente no navegador</p>
+            <a href="#" class="btn btn-primary" onclick="openInBrowser(); return false;">Abrir Simulado</a>
+        </div>
+        
+        <div class="card">
+            <div class="icon">📧</div>
+            <h2>Receba o link por email</h2>
+            <p>Digite seu email abaixo e enviaremos o link direto para você</p>
+            <input type="email" id="email-input" placeholder="Seu melhor email">
+            <button class="btn btn-secondary" onclick="sendEmail()">Enviar Link</button>
+            <div id="message" class="message"></div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Método ANAC - Simulado Gratuito para Piloto Privado</p>
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir no navegador
+        function openInBrowser() {
+            const url = 'https://metodoanac.github.io';
+            window.open(url, '_blank');
+        }
+        
+        // Função para enviar email
+        function sendEmail() {
+            const email = document.getElementById('email-input').value.trim();
+            const messageDiv = document.getElementById('message');
+            
+            // Validação básica
+            if (!email) {
+                showMessage('Por favor, digite seu email.', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showMessage('Por favor, digite um email válido.', 'error');
+                return;
+            }
+            
+            // Mostrar mensagem de carregamento
+            showMessage('Enviando...', 'loading');
+            
+            // Parâmetros para o EmailJS
+            const templateParams = {
+                to_email: email,
+                reply_to: "metodoanac@gmail.com"
+            };
+            
+            // Enviar email usando EmailJS
+            emailjs.send('service_7lg7sjb', 'template_gd3qqx6', templateParams)
+                .then(function(response) {
+                    showMessage('Email enviado! Verifique sua caixa de entrada.', 'success');
+                    document.getElementById('email-input').value = '';
+                }, function(error) {
+                    showMessage('Erro ao enviar. Tente novamente.', 'error');
+                    console.error('EmailJS Error:', error);
+                });
+        }
+        
+        // Função para mostrar mensagens
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            
+            // Remover classes anteriores
+            messageDiv.classList.remove('success', 'error', 'loading');
+            
+            // Adicionar classe apropriada
+            if (type === 'success') {
+                messageDiv.classList.add('success');
+            } else if (type === 'error') {
+                messageDiv.classList.add('error');
+            }
+        }
+        
+        // Validar email
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
