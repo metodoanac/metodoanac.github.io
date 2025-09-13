@@ -41,11 +41,11 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             padding: 25px;
-            text-align: center;
+            text-align: left;
         }
         
         .header-img {
-            width: 80%;
+            width: 100%;
             max-width: 600px;
             margin: 0 auto 25px;
             display: block;
@@ -61,7 +61,7 @@
         }
         
         h2 {
-            color: #0056b3;
+            color: #4169E1;
             margin-bottom: 15px;
             font-size: 1.4rem;
         }
@@ -137,6 +137,12 @@
             border: 1px solid #f5c6cb;
         }
         
+        .info {
+            background-color: #e7f3ff;
+            color: #0056b3;
+            border: 1px solid #cfe2ff;
+        }
+        
         .footer {
             margin-top: 25px;
             color: #6c757d;
@@ -147,6 +153,17 @@
             font-size: 24px;
             margin-bottom: 10px;
         }
+        
+        .link-url {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            word-break: break-all;
+            color: #495057;
+            border: 1px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -154,49 +171,77 @@
         <img src="https://github.com/metodoanac/metodoanac.github.io/blob/images/Logo%20login.jpg?raw=true" alt="Método ANAC" class="header-img">
         
         <div class="card">
-            <h2>📱 Acesse nosso simulado</h2>
-            <p>Clique no botão abaixo para abrir diretamente no navegador</p>
-            <a href="#" class="btn btn-primary" onclick="openInBrowser(); return false;">Abrir Simulado</a>
+            <h2>📱 | Acesso Mobile</h2>
+            <p>O nosso sistema de simulados não funciona dentro do instagram, mas não se preocupe!</p>
+            <p>Copie o link abaixo e cole no seu navegador para acessar:</p>
+            
+            <div class="link-url" id="simulado-url" style="text-align:center">https://metodoanac.github.io</div>
+            
+            <button class="btn btn-primary" onclick="copyLink()">Copiar Link</button>
+            <div id="copy-message" class="message"></div>
         </div>
         
         <div class="card">
-            <h2>📧 Receba o link por email</h2>
-            <p>Digite seu email abaixo e enviaremos o link direto para você</p>
+            <h2>🖥️ | Acesso Desktop</h2>
+            <p>Digite seu email abaixo para receber o link de acesso em seu computador (não enviaremos spam)</p>
             <input type="email" id="email-input" placeholder="Seu melhor email">
             <button class="btn btn-secondary" onclick="sendEmail()">Enviar Link</button>
-            <div id="message" class="message"></div>
+            <div id="email-message" class="message"></div>
         </div>
         
-        <div class="footer">
+        <div class="footer" style="text-align:center">
             <p>© Método ANAC - Eduardo Pavan</p>
         </div>
     </div>
 
     <script>
-        // Função para abrir no navegador
-        function openInBrowser() {
+        // Função para copiar o link
+        function copyLink() {
             const url = 'https://metodoanac.github.io';
-            window.open(url, '_blank');
+            const messageDiv = document.getElementById('copy-message');
+            
+            // Usa a API de Clipboard moderna
+            navigator.clipboard.writeText(url).then(function() {
+                showMessage(messageDiv, 'Link copiado! Cole no seu navegador.', 'success');
+            }).catch(function() {
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                textArea.style.position = 'fixed';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    const msg = successful ? 'Link copiado!' : 'Falha ao copiar o link.';
+                    showMessage(messageDiv, msg, successful ? 'success' : 'error');
+                } catch (err) {
+                    showMessage(messageDiv, 'Falha ao copiar o link.', 'error');
+                }
+                
+                document.body.removeChild(textArea);
+            });
         }
         
         // Função para enviar email
         function sendEmail() {
             const email = document.getElementById('email-input').value.trim();
-            const messageDiv = document.getElementById('message');
+            const messageDiv = document.getElementById('email-message');
             
             // Validação básica
             if (!email) {
-                showMessage('Por favor, digite seu email.', 'error');
+                showMessage(messageDiv, 'Por favor, digite seu email.', 'error');
                 return;
             }
             
             if (!isValidEmail(email)) {
-                showMessage('Por favor, digite um email válido.', 'error');
+                showMessage(messageDiv, 'Por favor, digite um email válido.', 'error');
                 return;
             }
             
             // Mostrar mensagem de carregamento
-            showMessage('Enviando...', 'loading');
+            showMessage(messageDiv, 'Enviando...', 'info');
             
             // Parâmetros para o EmailJS
             const templateParams = {
@@ -207,28 +252,36 @@
             // Enviar email usando EmailJS
             emailjs.send('service_7lg7sjb', 'template_gd3qqx6', templateParams)
                 .then(function(response) {
-                    showMessage('Email enviado! Verifique sua caixa de entrada.', 'success');
+                    showMessage(messageDiv, 'Email enviado! Verifique sua caixa de entrada.', 'success');
                     document.getElementById('email-input').value = '';
                 }, function(error) {
-                    showMessage('Erro ao enviar. Tente novamente.', 'error');
+                    showMessage(messageDiv, 'Erro ao enviar. Tente novamente.', 'error');
                     console.error('EmailJS Error:', error);
                 });
         }
         
         // Função para mostrar mensagens
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.style.display = 'block';
+        function showMessage(element, text, type) {
+            element.textContent = text;
+            element.style.display = 'block';
             
             // Remover classes anteriores
-            messageDiv.classList.remove('success', 'error', 'loading');
+            element.classList.remove('success', 'error', 'info');
             
             // Adicionar classe apropriada
             if (type === 'success') {
-                messageDiv.classList.add('success');
+                element.classList.add('success');
             } else if (type === 'error') {
-                messageDiv.classList.add('error');
+                element.classList.add('error');
+            } else if (type === 'info') {
+                element.classList.add('info');
+            }
+            
+            // Esconder a mensagem após 5 segundos (apenas para sucesso/info)
+            if (type !== 'error') {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
             }
         }
         
